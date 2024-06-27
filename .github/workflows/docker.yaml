@@ -1,0 +1,34 @@
+name: docker
+
+on:
+  push:
+    branches:
+      - testing 
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up source
+        uses: actions/checkout@v4
+
+      - name: Set up version
+        run: echo "VERSION=$(awk -F\" '/^version =/ {print $2}' Cargo.toml)" >> $GITHUB_ENV
+
+      - name: Set up doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
+
+      - name: Doctl login
+        run: doctl registry login
+
+      - name: Docker build
+        run: docker build -t auth .
+
+      - name: Docker tag
+        run: docker tag auth:$VERSION registry.digitalocean.com/manasrc/auth:$VERSION
+
+      - name: Docker push
+        run: docker push registry.digitalocean.com/manasrc/auth:$VERSION
