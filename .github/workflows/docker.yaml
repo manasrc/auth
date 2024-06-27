@@ -25,7 +25,7 @@ jobs:
         run: doctl registry login
 
       - name: Docker build
-        run: docker build -t auth .
+        run: docker build -t auth:$VERSION .
 
       - name: Docker tag
         run: docker tag auth:$VERSION registry.digitalocean.com/manasrc/auth:$VERSION
